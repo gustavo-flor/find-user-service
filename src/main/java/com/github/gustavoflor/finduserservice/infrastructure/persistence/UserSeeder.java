@@ -3,6 +3,7 @@ package com.github.gustavoflor.finduserservice.infrastructure.persistence;
 import com.github.gustavoflor.finduserservice.core.User;
 import com.opencsv.CSVReader;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserSeeder {
@@ -35,9 +37,15 @@ public class UserSeeder {
     private final UserRepository userRepository;
 
     @EventListener
-    public void seed(ContextRefreshedEvent event) throws IOException {
+    public void seed(ContextRefreshedEvent event) {
         if (isNotTest(event) && userRepository.isEmpty()) {
-            userRepository.insert(getUsersFromDataFile());
+            log.info("> Starting database seed in {}", this.getClass().getName());
+            try {
+                userRepository.insert(getUsersFromDataFile());
+            } catch (IOException exception) {
+                log.error("> Error on database seed", exception);
+            }
+            log.info("> Finished database seed");
         }
     }
 
@@ -55,12 +63,15 @@ public class UserSeeder {
     }
 
     private List<User> getUsersFromDataFile() throws IOException {
+        log.info("> Reading relevance's list");
         List<String> firstRelevanceList = getResourceLines(firstRelevanceListFile);
         List<String> secondRelevanceList = getResourceLines(secondRelevanceListFile);
         CSVReader csvReader = new CSVReader(getResourceReader(dataFile));
         List<User> users = new ArrayList<>();
         String[] line;
+        log.info("> Reading data CSV lines");
         while ((line = csvReader.readNext()) != null) {
+            log.info("> CSV Line detail: {}", Arrays.toString(line));
             String id = line[0];
             Integer relevance = getRelevance(id, firstRelevanceList, secondRelevanceList);
             User user = User.builder().id(id).name(line[1]).username(line[2]).relevance(relevance).build();

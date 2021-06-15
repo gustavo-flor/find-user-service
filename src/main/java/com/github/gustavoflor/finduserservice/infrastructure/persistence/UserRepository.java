@@ -49,7 +49,7 @@ public class UserRepository {
     }
 
     private void applyProject(List<AggregationOperation> pipeline) {
-        String textScoreExpression = "{$meta: \"textScore\"}";
+        String textScoreExpression = "{ $meta: \"textScore\" }";
         ProjectionOperation projection = project("id", "name", "username", "relevance");
         pipeline.add(projection.andExpression(textScoreExpression).as(Searchable.TEXT_SCORE_FIELD));
     }
