@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: FindUserService
+  profiles:
+    active: dev
+
+---
+spring:
+  data:
+    mongodb:
+      database: find_user_service
+      host: localhost
+      port: 27017
+  config:
+    activate:
+      on-profile: dev
+
+---
+spring:
+  data:
+    mongodb:
+      database: find_user_service
+      host: mongodb
+      port: 27017
+
+  config:
+    activate:
+      on-profile: docker
