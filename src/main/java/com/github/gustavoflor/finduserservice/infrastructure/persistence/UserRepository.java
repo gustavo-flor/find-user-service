@@ -1,5 +1,6 @@
 package com.github.gustavoflor.finduserservice.infrastructure.persistence;
 
+import com.github.gustavoflor.finduserservice.core.Searchable;
 import com.github.gustavoflor.finduserservice.core.User;
 import com.github.gustavoflor.finduserservice.infrastructure.shared.Pageable;
 import com.github.gustavoflor.finduserservice.infrastructure.shared.Page;
@@ -8,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
@@ -40,17 +42,24 @@ public class UserRepository {
     public Page<User> findAll(Pageable pageable, String sortBy) {
         List<AggregationOperation> pipeline = new ArrayList<>();
         applyFilter(pipeline, pageable);
+        applyProject(pipeline);
         applySortable(pipeline, sortBy);
         applyPagination(pipeline, pageable);
         return Page.of(aggregate(pipeline), pageable);
     }
 
+    private void applyProject(List<AggregationOperation> pipeline) {
+        String textScoreExpression = "{$meta: \"textScore\"}";
+        ProjectionOperation projection = project("id", "name", "username", "relevance");
+        pipeline.add(projection.andExpression(textScoreExpression).as(Searchable.TEXT_SCORE_FIELD));
+    }
+
     private void applyFilter(List<AggregationOperation> pipeline, Pageable pageable) {
-        pipeline.add(match(new TextCriteria().matching(pageable.getQuery())));
+        pipeline.add(match(TextCriteria.forDefaultLanguage().matching(pageable.getQuery())));
     }
 
     private void applySortable(List<AggregationOperation> pipeline, String sortBy) {
-        pipeline.add(sort(Sort.by(sortBy)));
+        pipeline.add(sort(Sort.by(sortBy)).and(Sort.by(Sort.Direction.DESC, Searchable.TEXT_SCORE_FIELD)));
     }
 
     private void applyPagination(List<AggregationOperation> pipeline, Pageable pageable) {
