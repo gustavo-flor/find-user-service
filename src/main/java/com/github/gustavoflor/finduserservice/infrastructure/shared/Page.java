@@ -13,15 +13,15 @@ import java.util.List;
 @AllArgsConstructor
 public class Page<E> {
 
-    private List<E> data;
     private Long from = 0L;
     private Long size = 15L;
+    private List<E> data;
 
     public static <T> Page<T> of(List<T> data, Pageable pageable) {
         return Page.<T>builder()
-                .data(data)
                 .from(pageable.getFrom())
                 .size(pageable.getSize())
+                .data(data)
                 .build();
     }
 
