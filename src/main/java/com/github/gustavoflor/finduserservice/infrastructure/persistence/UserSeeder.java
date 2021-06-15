@@ -13,12 +13,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class UserSeeder {
+
+    private static final String TEST_PROFILE = "test";
 
     @Value("classpath:data.csv")
     private Resource dataFile;
@@ -33,9 +36,14 @@ public class UserSeeder {
 
     @EventListener
     public void seed(ContextRefreshedEvent event) throws IOException {
-        if (userRepository.isEmpty()) {
+        if (isNotTest(event) && userRepository.isEmpty()) {
             userRepository.insert(getUsersFromDataFile());
         }
+    }
+
+    private boolean isNotTest(ContextRefreshedEvent event) {
+        String[] profiles = event.getApplicationContext().getEnvironment().getActiveProfiles();
+        return Arrays.stream(profiles).noneMatch(TEST_PROFILE::equals);
     }
 
     private BufferedReader getResourceReader(Resource resource) throws IOException {

@@ -39,14 +39,14 @@ public class UserRepository {
 
     public Page<User> findAll(Pageable pageable, String sortBy) {
         List<AggregationOperation> pipeline = new ArrayList<>();
-        applyFilter(pipeline, pageable.getQuery());
+        applyFilter(pipeline, pageable);
         applySortable(pipeline, sortBy);
         applyPagination(pipeline, pageable);
         return Page.of(aggregate(pipeline), pageable);
     }
 
-    private void applyFilter(List<AggregationOperation> pipeline, String term) {
-        pipeline.add(match(new TextCriteria().matchingPhrase(term)));
+    private void applyFilter(List<AggregationOperation> pipeline, Pageable pageable) {
+        pipeline.add(match(new TextCriteria().matching(pageable.getQuery())));
     }
 
     private void applySortable(List<AggregationOperation> pipeline, String sortBy) {

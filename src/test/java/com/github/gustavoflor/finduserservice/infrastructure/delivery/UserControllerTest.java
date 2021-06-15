@@ -3,7 +3,6 @@ package com.github.gustavoflor.finduserservice.infrastructure.delivery;
 import com.github.gustavoflor.finduserservice.core.User;
 import com.github.gustavoflor.finduserservice.core.UserTestHelper;
 import com.github.gustavoflor.finduserservice.infrastructure.persistence.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -56,12 +54,12 @@ class UserControllerTest {
 
     @Test
     void shouldNotFindWhenSizeIsNull() throws Exception {
-        doFindRequest("?query=Marty McFly&size=").andExpect(status().isBadRequest());
+        doFindRequest("?query=\"Marty McFly\"&size=").andExpect(status().isBadRequest());
     }
 
     @Test
     void shouldNotFindWhenFromIsNull() throws Exception {
-        doFindRequest("?query=Marty McFly&from=").andExpect(status().isBadRequest());
+        doFindRequest("?query=\"Marty McFly\"&from=").andExpect(status().isBadRequest());
     }
 
     @Test
@@ -70,38 +68,81 @@ class UserControllerTest {
         User superman = UserTestHelper.create("Clark Kent", "superman", 1);
         userRepository.insert(List.of(batman, superman));
 
-        doFindRequest("?query=" + batman.getUsername())
+        doFindRequest("?query=batman")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", hasSize(1)))
                 .andExpect(jsonPath("$.data[0].id", is(batman.getId())));
     }
 
     @Test
-    void shouldSortByRelevance() throws Exception {
-        String lukesName = "Luke Skywalker";
-        User luke = UserTestHelper.create(lukesName, "luke", 2);
-        User anakinSkywalker = UserTestHelper.create("Anakin Skywalker", "anakin.skywalker", 3);
-        User lukeSkywalker = UserTestHelper.create(lukesName, "luke.skywalker", 1);
-        User skywalker = UserTestHelper.create(lukesName, "skywalker", 3);
-        userRepository.insert(List.of(luke, anakinSkywalker, lukeSkywalker, skywalker));
+    void shouldSearchWithoutCaseSensitive() throws Exception {
+        User goku = UserTestHelper.create("Goku", "goku", 1);
+        User vegeta = UserTestHelper.create("Vegeta", "vegeta", 1);
+        User picollo = UserTestHelper.create("Picollo", "picollo", 1);
+        userRepository.insert(List.of(goku, vegeta, picollo));
 
-        doFindRequest("?query=" + lukesName)
+        doFindRequest("?query=piCOlLo").andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].id", is(picollo.getId())));
+    }
+
+    @Test
+    void shouldSearchWithDiacrictInsensitive() throws Exception {
+        User zeCarioca = UserTestHelper.create("Zé carioca", "carioca", 1);
+        User picaPau = UserTestHelper.create("Pica Pau", "pica.pau", 1);
+        userRepository.insert(List.of(zeCarioca, picaPau));
+
+        doFindRequest("?query=ze")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data", hasSize(3)))
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].id", is(zeCarioca.getId())));
+    }
+
+    @Test
+    void shouldSearchWithStemming() throws Exception {
+        User pedro = UserTestHelper.create("Pedro", "pedro", 1);
+        User lucas = UserTestHelper.create("Lucas", "lucas", 1);
+        userRepository.insert(List.of(pedro, lucas));
+
+        doFindRequest("?query=pedra")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].id", is(pedro.getId())));
+    }
+
+    @Test
+    void shouldNotSearchWithPhraseOnStemming() throws Exception {
+        User pedro = UserTestHelper.create("Pedro", "pedro", 1);
+        User lucas = UserTestHelper.create("Lucas", "lucas", 1);
+        userRepository.insert(List.of(pedro, lucas));
+
+        doFindRequest("?query=\"pedra\"")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(0)));
+    }
+
+    @Test
+    void shouldSortByRelevance() throws Exception {
+        User anakinSkywalker = UserTestHelper.create("Anakin Skywalker", "anakin.skywalker", 2);
+        User lukeSkywalker = UserTestHelper.create("Luke Skywalker", "luke.skywalker", 1);
+        User chewbacca = UserTestHelper.create("Chewbacca", "chewbacca", 3);
+        userRepository.insert(List.of(chewbacca, anakinSkywalker, lukeSkywalker));
+
+        doFindRequest("?query=skywalker")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data", hasSize(2)))
                 .andExpect(jsonPath("$.data[0].id", is(lukeSkywalker.getId())))
-                .andExpect(jsonPath("$.data[1].id", is(luke.getId())))
-                .andExpect(jsonPath("$.data[2].id", is(skywalker.getId())));
+                .andExpect(jsonPath("$.data[1].id", is(anakinSkywalker.getId())));
     }
 
     @Test
     void shouldPaginate() throws Exception {
-        String brownsName = "Brown";
         User martyMcFly = UserTestHelper.create("Marty McFly", "marty.mcfly", 1);
-        User doctorBrown = UserTestHelper.create(brownsName, "doctor.brow", 1);
-        User charlieBrown = UserTestHelper.create(brownsName, "charlie.brown", 2);
+        User doctorBrown = UserTestHelper.create("Doctor Brown", "doctor.brown", 1);
+        User charlieBrown = UserTestHelper.create("Charlie Brown", "charlie.brown", 2);
         userRepository.insert(List.of(martyMcFly, doctorBrown, charlieBrown));
 
-        doFindRequest("?from=1&size=1&query=" + brownsName)
+        doFindRequest("?from=1&size=1&query=brown")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data", hasSize(1)))
                 .andExpect(jsonPath("$.data[0].id", is(charlieBrown.getId())));

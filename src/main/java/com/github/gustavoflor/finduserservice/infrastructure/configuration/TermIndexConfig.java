@@ -21,6 +21,7 @@ public class TermIndexConfig {
         TextIndexDefinition termIndex = new TextIndexDefinition.TextIndexDefinitionBuilder()
                 .onField("name")
                 .onField("username")
+                .withDefaultLanguage("portuguese")
                 .build();
         mongoTemplate.indexOps(User.class).ensureIndex(termIndex);
     }
