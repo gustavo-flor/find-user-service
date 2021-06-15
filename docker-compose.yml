@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  mongodb:
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: "find_user_service"
+    image: mongo:4-bionic
+    hostname: mongodb
+    networks:
+      - spring-cloud-network
+    ports:
+      - 27017:27017
+
+  find-user-service:
+    container_name: find-user-service
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    working_dir: /app
+    image: find-user-service:latest
+    networks:
+      - spring-cloud-network
+    ports:
+      - "8080:8080"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev,docker"
+    healthcheck:
+      test: "wget -nv -q http://localhost:8080/actuator/health -O - | grep UP || exit 1"
+      interval: 10s
+      timeout: 15s
+      retries: 15
+      start_period: 15s
+    depends_on:
+      - mongodb
+
+networks:
+  spring-cloud-network:
+    driver: bridge

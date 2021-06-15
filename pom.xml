@@ -15,6 +15,7 @@
     <description>Project to use FTS on MongoDB with Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+        <opencsv.version>4.1</opencsv.version>
     </properties>
     <dependencies>
         <dependency>
@@ -34,9 +35,8 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <dependency>
@@ -53,6 +53,12 @@
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>${opencsv.version}</version>
         </dependency>
     </dependencies>
 
