@@ -11,5 +11,6 @@ deploy:
   on:
     branch: main
   provider: heroku
-  api_key: ${API_KEY}
-  app: ${APP}
+  api_key: "$API_KEY"
+  app: "$APP"
+  test: "$TRAVIS_TAG"
