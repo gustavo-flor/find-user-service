@@ -13,5 +13,4 @@ USER appuser
 COPY --chown=appuser:appgroup /target/*.jar /app/find-user-service.jar
 
 EXPOSE 8080
-
 ENTRYPOINT exec java $JAVA_OPTS $SPRING_OPTS -jar find-user-service.jar $0 $@
