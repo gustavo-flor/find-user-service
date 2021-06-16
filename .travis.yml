@@ -11,5 +11,5 @@ deploy:
   on:
     branch: main
   provider: heroku
-  api_key:
-  app: find-user-service
+  api_key: ${API_KEY}
+  app: ${APP}
