@@ -29,3 +29,13 @@ spring:
   config:
     activate:
       on-profile: docker
+
+---
+spring:
+  data:
+    mongodb:
+      database: ${MONGODB_DATABASE}
+      uri: ${MONGODB_URI}
+  config:
+    activate:
+      on-profile: prod
