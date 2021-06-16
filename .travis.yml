@@ -11,5 +11,5 @@ deploy:
   on:
     branch: main
   provider: heroku
-  api_key: "$APP_KEY"
+  api_key: "$API_KEY"
   app: "$APP"
