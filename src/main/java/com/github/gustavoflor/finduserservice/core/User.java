@@ -1,6 +1,6 @@
 package com.github.gustavoflor.finduserservice.core;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
@@ -20,7 +20,7 @@ public class User extends Searchable {
 
     private String username;
 
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer relevance;
 
 }

@@ -22,7 +22,6 @@ spring:
       database: find_user_service
       host: mongodb
       port: 27017
-
   config:
     activate:
       on-profile: docker

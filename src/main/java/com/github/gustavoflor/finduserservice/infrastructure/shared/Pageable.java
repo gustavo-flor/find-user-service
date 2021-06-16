@@ -27,4 +27,6 @@ public class Pageable {
     @NotBlank
     private String query;
 
+    private boolean debug;
+
 }

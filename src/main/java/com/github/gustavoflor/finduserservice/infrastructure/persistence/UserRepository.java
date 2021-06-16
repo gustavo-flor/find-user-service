@@ -45,17 +45,18 @@ public class UserRepository {
         applyProject(pipeline);
         applySortable(pipeline, sortBy);
         applyPagination(pipeline, pageable);
+        applySelect(pipeline, pageable);
         return Page.of(aggregate(pipeline), pageable);
+    }
+
+    private void applyFilter(List<AggregationOperation> pipeline, Pageable pageable) {
+        pipeline.add(match(TextCriteria.forDefaultLanguage().matching(pageable.getQuery())));
     }
 
     private void applyProject(List<AggregationOperation> pipeline) {
         String textScoreExpression = "{ $meta: \"textScore\" }";
         ProjectionOperation projection = project("id", "name", "username", "relevance");
         pipeline.add(projection.andExpression(textScoreExpression).as(Searchable.TEXT_SCORE_FIELD));
-    }
-
-    private void applyFilter(List<AggregationOperation> pipeline, Pageable pageable) {
-        pipeline.add(match(TextCriteria.forDefaultLanguage().matching(pageable.getQuery())));
     }
 
     private void applySortable(List<AggregationOperation> pipeline, String sortBy) {
@@ -66,6 +67,12 @@ public class UserRepository {
         long elementsToSkip = pageable.getFrom() * pageable.getSize();
         pipeline.add(skip(elementsToSkip));
         pipeline.add(limit(pageable.getSize()));
+    }
+
+    private void applySelect(List<AggregationOperation> pipeline, Pageable pageable) {
+        if (!pageable.isDebug()) {
+            pipeline.add(project("id", "name", "username"));
+        }
     }
 
     private List<User> aggregate(List<AggregationOperation> pipeline) {
