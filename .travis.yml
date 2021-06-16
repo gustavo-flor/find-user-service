@@ -6,7 +6,6 @@ branches:
   only:
     - main
 before_install:
-  - export TZ=America/Sao_Paulo
   - chmod +x mvnw
 deploy:
   on:
