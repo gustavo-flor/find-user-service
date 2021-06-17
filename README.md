@@ -98,7 +98,9 @@ curl http://localhost:8080/search?query=%22pedra%22
 
 ## Objetivos + Detalhes da implementação
 
-A necessidade era construir uma aplicação escalável e de alta performance, que fosse capaz de buscar através de um ou mais termos os usuários de uma determinada base de dados. Sabendo disso foi escolhido criar uma aplicação Spring com MongoDB para utilizar a feature do FTS.
+A necessidade era construir uma aplicação escalável e de alta performance, que fosse capaz de buscar através de um ou mais termos os usuários de uma determinada base de dados e ordena-los conforme sua relevância. Sabendo disso foi escolhido criar uma aplicação Spring + MongoDB.
+
+> Não temos um endpoint para inclusão de novos usuários, eles são incluídos ao subir a aplicação com base nos arquivos presentes na pasta `resources` do projeto java.
 
 Quais foram as motivações para o uso do Spring?
 
