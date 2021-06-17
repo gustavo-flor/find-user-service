@@ -1,16 +1,25 @@
 package com.github.gustavoflor.finduserservice.infrastructure.delivery;
 
+import com.github.gustavoflor.finduserservice.core.User;
+import com.github.gustavoflor.finduserservice.core.UserTestHelper;
 import com.github.gustavoflor.finduserservice.infrastructure.persistence.UserRepository;
+import com.github.gustavoflor.finduserservice.infrastructure.shared.Page;
+import com.github.gustavoflor.finduserservice.infrastructure.shared.Pageable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class UserControllerTest {
@@ -76,6 +85,28 @@ class UserControllerTest {
     @Test
     void shouldNotFindWhenDebugIsNotBoolean() throws Exception {
         doFindRequest("?query=\"Marty McFly\"&debug=Lorem").andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldShowOnlyNonDebugFields() throws Exception {
+        User martyMcfly = UserTestHelper.create("Marty McFly", "marty.mcfly", null, null);
+        Mockito.doReturn(Page.of(List.of(martyMcfly), new Pageable())).when(userRepository).findAll(Mockito.any(), Mockito.any());
+        doFindRequest("?query=\"Marty McFly\"")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id", is(martyMcfly.getId())))
+                .andExpect(jsonPath("$.data[0].textScore").doesNotExist())
+                .andExpect(jsonPath("$.data[0].relevance").doesNotExist());
+    }
+
+    @Test
+    void shouldShowAllFields() throws Exception {
+        User martyMcfly = UserTestHelper.create("Marty McFly", "marty.mcfly", 1, 1.5F);
+        Mockito.doReturn(Page.of(List.of(martyMcfly), new Pageable())).when(userRepository).findAll(Mockito.any(), Mockito.any());
+        doFindRequest("?query=\"Marty McFly\"")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id", is(martyMcfly.getId())))
+                .andExpect(jsonPath("$.data[0].textScore",is(martyMcfly.getTextScore().doubleValue())))
+                .andExpect(jsonPath("$.data[0].relevance", is(martyMcfly.getRelevance())));
     }
 
     private ResultActions doFindRequest(String query) throws Exception {

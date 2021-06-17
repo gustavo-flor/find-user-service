@@ -16,4 +16,10 @@ public class UserTestHelper {
                 .build();
     }
 
+    public User create(String name, String username, Integer relevance, Float textScore) {
+        User user = create(name, username, relevance);
+        user.setTextScore(textScore);
+        return user;
+    }
+
 }
