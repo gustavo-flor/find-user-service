@@ -12,7 +12,7 @@ Aplicação REST para consulta de usuários utilizando FTS (Full Text Search) do
 
 - Instalação Docker, [link para o guia completo no site oficial](https://docs.docker.com/docker-hub/) 🐳.
 
-> Executar `docker -v` para verificar a instalação.
+> Executar `$ docker -v` para verificar a instalação.
 
 ### Passo a passo
 
@@ -54,7 +54,7 @@ Exemplos:
 
 | Parâmetro | Descrição | Obrigatório |
 |-----------|-----------| ----------- |
-| query | Termo procurado. | Sim |
+| query | Termos para procura. | Sim |
 | from | Página, contagem de páginas começa em 0. Valor padrão: 0. | Não |
 | size | Limite de usuários por página. Valor padrão: 15. | Não |
 | debug | Adiciona no retorno dos usuários a relevância e a nota de compatibilidade com os termos enviados. Valor padrão: false, Valores permitidos \[true, false]. | Não |
@@ -62,7 +62,7 @@ Exemplos:
 Exemplo:
 
 ```shell
-curl http://localhost:8080/search?query=%22pedra%22
+$ curl http://localhost:8080/search?query=%22pedra%22
 ```
 
 ```json5
