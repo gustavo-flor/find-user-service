@@ -48,7 +48,9 @@ public class ExceptionTranslator {
     }
 
     private String getPath(WebRequest request) {
-        return ((ServletWebRequest) request).getRequest().getRequestURI();
+        String query = ((ServletWebRequest) request).getRequest().getQueryString();
+        String uri = ((ServletWebRequest) request).getRequest().getRequestURI();
+        return uri + (query == null ? "" : "?" + query);
     }
 
     @ExceptionHandler(Exception.class)
