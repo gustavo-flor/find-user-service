@@ -120,4 +120,7 @@ Sabendo disso para uma busca ainda mais acertiva é ideal conhecer de fato todas
 
 ## Até breve
 
+Repositório com uma aplicação web para consumir este serviço, [find-user-web](https://github.com/gustavo-flor/find-user-web) [EM DESENVOLVIMENTO].
+
 Fique a vontade para criar melhorias para essa solução ⚗, grande abraço!
+
