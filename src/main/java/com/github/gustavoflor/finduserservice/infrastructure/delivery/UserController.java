@@ -6,6 +6,7 @@ import com.github.gustavoflor.finduserservice.infrastructure.shared.Page;
 import com.github.gustavoflor.finduserservice.infrastructure.shared.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ public class UserController {
 
     private final UserRepository userRepository;
 
+    @CrossOrigin
     @Transactional
     @GetMapping("/search")
     public Page<User> search(@Valid Pageable pageable) {
