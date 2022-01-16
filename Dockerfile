@@ -1,5 +1,5 @@
 FROM adoptopenjdk/openjdk11:alpine-jre
-LABEL maintainer="Gustavo Flôr <ogustaflor@gmail.com>"
+LABEL maintainer="Gustavo Flôr"
 
 ENV JAVA_OPTS=""
 ENV SPRING_OPTS=""
